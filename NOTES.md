@@ -89,10 +89,21 @@ báo cáo khi chỉ một phần truy vấn thất bại.
   Có các lượt chạy lỗi hạ tầng/định dạng judge trước hai báo cáo cuối cùng.
 - Cải tiến prompt không bảo đảm mọi câu trả lời đều đúng; tests offline dùng
   fake provider chỉ kiểm tra contract, không kiểm tra toàn bộ năng lực model.
-- Bonus: `eval_bonus.json` đủ 10/10 case, 95/100, quy đổi tham khảo 14,25/15,
+- Bonus hiện tại: `eval_bonus.json` đủ 10/10 case, 96,4/100, quy đổi tham khảo 14,46/15,
   cùng model, `max_steps=16`. B2 đọc offsets 0/3/6; B3 retry 429 giả lập thành
   công; B4 dừng sau 3 lần Vercel lỗi; B5 sửa định dạng offset/limit. B6 chỉ
-  gọi status tools, thiếu `get_incident_details`, bị áp trần 50 điểm; chưa sửa.
-- Retry bonus mới kiểm chứng 429 giả lập với thời gian chờ 0; chưa có cơ chế
-  Python ép chờ `Retry-After` thật hoặc giới hạn retry riêng ngoài max steps.
-  Chưa xác nhận đáp ứng đầy đủ yêu cầu retry live. Xem thêm `ANALYSIS.md`.
+  từng chỉ gọi status tools, thiếu `get_incident_details`, bị áp trần 50 điểm;
+  sau hoàn thiện đã đọc chi tiết và đạt 100 trong báo cáo mới.
+- Sau lượt bonus 95/100, đã bổ sung chính sách đọc incident, kiểm tra chi tiết
+  và URL, cùng cooldown `Retry-After` dạng giây/HTTP-date trong Python, chỉ áp
+  dụng bonus. Dừng sau 3 lỗi 429 liên tục/provider; nếu chờ hơn 10 giây/lần
+  hoặc tổng hơn 30 giây/run thì không gọi lại sớm, báo vượt budget.
+- 39 tests chính và 10 tests agent bonus pass sau thay đổi. Các tests mới
+  dùng mock thời gian, tools và HTTP, không gọi mạng. Chưa kiểm chứng live
+  end-to-end khi status API thật trả 429. Bài chính giữ nguyên hành vi đã đánh giá.
+- Lượt bonus cuối dùng `PROVIDER_TIMEOUT_SECONDS=180` để giảm lỗi chờ LLM;
+  mặc định adapter vẫn 60 giây. B3 đạt 64: retry thành công nhưng final answer
+  tập trung kể 8 incident lịch sử, thiếu overall, captured_at và diễn biến 429.
+  Kiểm tra chi tiết bổ sung có thể làm model lệch trọng tâm và tăng tool calls.
+  Không coi danh sách incident resolved là bằng chứng đầy đủ trạng thái hiện tại.
+  Chín case còn lại đạt 100. Không chạy lại chỉ để chọn điểm cao. Xem `ANALYSIS.md`.

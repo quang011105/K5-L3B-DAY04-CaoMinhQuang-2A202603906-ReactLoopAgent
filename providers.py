@@ -13,9 +13,12 @@ CONFIG = {
 
 
 def post_json(url, headers, payload):
+    timeout = int(os.getenv('PROVIDER_TIMEOUT_SECONDS', '60'))
+    if not 1 <= timeout <= 300:
+        raise ValueError('PROVIDER_TIMEOUT_SECONDS phải từ 1 đến 300 giây.')
     req = urllib.request.Request(url, data=json.dumps(payload).encode(), headers={'Content-Type': 'application/json', **headers})
     try:
-        with urllib.request.urlopen(req, timeout=60) as response:
+        with urllib.request.urlopen(req, timeout=timeout) as response:
             return json.load(response)
     except urllib.error.HTTPError as exc:
         # Do not print response bodies: they may contain account or request data.
